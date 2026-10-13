@@ -560,25 +560,15 @@ img, svg { max-width:100%; }
 
 <header class="topbar">
   <div class="topbar-in">
-    <div class="brand">
+    <div class="brand" data-go="home" role="button" tabindex="0" style="cursor:pointer">
       <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="21" r="14" fill="#12142b" stroke="#F0152B" stroke-width="2.5"/><path d="M9 11l5 5M31 11l-5 5" stroke="#F0152B" stroke-width="3" stroke-linecap="round"/><path d="M13 20l5 2M27 20l-5 2" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M14 28q6 4 12 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
       <span>Quiz <em>Arène</em> Otaku</span>
     </div>
-    <nav class="nav" aria-label="Navigation principale">
-      <button type="button" data-go="home" aria-current="page">Accueil</button>
-      <button type="button" data-go="quiz">Quiz</button>
-      <button type="button" data-go="duel">Duel</button>
-      <button type="button" data-go="arena">Arène</button>
-      <button type="button" data-go="rank">Classement</button>
-      <button type="button" data-go="shop">Boutique</button>
-      <button type="button" data-go="chat">💬 Chat</button>
-      <button type="button" data-go="profile">Profil</button>
-      <button type="button" class="user" id="accountBtn" data-go="profile" aria-label="Mon compte"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-    </nav>
   </div>
 </header>
 
 <main class="wrap">
+<button type="button" class="btn alt small-btn" id="backBar" data-go="home" hidden style="margin:12px 0 0">← Accueil</button>
 
 <section id="home" class="screen stage">
   <div class="hero">
@@ -1154,9 +1144,10 @@ function show(name){
   const navName=name==='profile'?'profile':name==='shop'?'shop':name==='chat'?'chat':name==='rank'?'rank':(name==='duel'||name==='arena')?name:(name==='game'||name==='quiz'||name==='missions')?'quiz':'home';
   const active=document.querySelector('.nav button[data-go="'+navName+'"]');if(active)active.setAttribute('aria-current','page');
   window.scrollTo(0,0);
-  if(typeof ROUTES!=='undefined'&&ROUTES[navName]){
-    document.title=TITLES[navName]+' · Quiz Arène Otaku';
-    if(location.hash!=='#/'+ROUTES[navName]) history.replaceState(null,'','#/'+ROUTES[navName]);
+  const bb=$('backBar');if(bb)bb.hidden=(navName==='home');
+  if(typeof ROUTES!=='undefined'&&ROUTES[name]){
+    document.title=TITLES[name]+' · Quiz Arène Otaku';
+    if(location.hash!=='#/'+ROUTES[name]) history.replaceState(null,'','#/'+ROUTES[name]);
   }
 }
 /* === ROUTAGE : chaque commande ouvre sa propre page (adresse + titre + bouton Retour) === */
@@ -1887,6 +1878,14 @@ document.addEventListener('click',function(e){
   const b=e.target.closest('[data-go]');
   if(!b||b.closest('.nav'))return;      /* le menu du haut a déjà ses propres écouteurs */
   go(b.dataset.go);
+});
+// Si on annule la création de compte, on revient à l'accueil au lieu de rester sur une page vide
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#authCancel'))return;
+  setTimeout(function(){
+    const any=[...document.querySelectorAll('section.screen')].some(x=>x.offsetParent!==null);
+    if(!any)go('home');
+  },0);
 });
 </script>
 </body>
